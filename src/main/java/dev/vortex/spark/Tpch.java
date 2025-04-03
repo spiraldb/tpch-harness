@@ -45,10 +45,10 @@ public final class Tpch {
     }
 
     private static String loadQuery(int query) {
-        try (InputStream inputStream = Tpch.class.getClassLoader().getResourceAsStream("q" + query + ".sql")) {
+        try (InputStream inputStream = Tpch.class.getResourceAsStream("q" + query + ".sql")) {
             return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read query out of classpath", e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read " + "q" + query + ".sql" + " out of classpath", e);
         }
     }
 }
