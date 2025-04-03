@@ -26,6 +26,16 @@ public final class Tpch {
         sparkSession.read().format("iceberg").load(format + ".region").registerTempTable("region");
         sparkSession.read().format("iceberg").load(format + ".supplier").registerTempTable("supplier");
 
+        // warm the context just a bit.
+        sparkSession.sql("select * from customer").count();
+        sparkSession.sql("select * from lineitem").count();
+        sparkSession.sql("select * from nation").count();
+        sparkSession.sql("select * from orders").count();
+        sparkSession.sql("select * from partsupp").count();
+        sparkSession.sql("select * from part").count();
+        sparkSession.sql("select * from region").count();
+        sparkSession.sql("select * from supplier").count();
+
         for (int query = 1; query <= 22; query++) {
             timeQuery(sparkSession, query);
         }
@@ -35,7 +45,7 @@ public final class Tpch {
         long startTime = System.nanoTime();
         String querySql = loadQuery(query);
         try {
-            spark.sql(querySql).count();
+            spark.sql(querySql).collect();
         } finally {
             long endTime = System.nanoTime();
             long duration = endTime - startTime;
