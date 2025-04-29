@@ -1,5 +1,7 @@
 package dev.vortex.spark;
 
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
 import java.io.InputStream;
@@ -25,7 +27,7 @@ public final class Tpch {
         System.out.println("Setting format for tests to \"" + format + "\"");
 
         sparkSession.read().format("iceberg").load(format + ".customer").registerTempTable("customer");
-        sparkSession.read().format("iceberg").load(format + ".lineitem").registerTempTable("lineitem");
+        sparkSession.read().format("iceberg").option("split-size", 3_000_000).load(format + ".lineitem").registerTempTable("lineitem");
         sparkSession.read().format("iceberg").load(format + ".nation").registerTempTable("nation");
         sparkSession.read().format("iceberg").load(format + ".orders").registerTempTable("orders");
         sparkSession.read().format("iceberg").load(format + ".partsupp").registerTempTable("partsupp");
@@ -58,7 +60,8 @@ public final class Tpch {
                     spark.sql(stat).collect();
                 }
             } else {
-                spark.sql(querySql).collect();
+                long count = spark.sql(querySql).count();
+                System.out.println("Query " + query + " returned " + count + " rows");
             }
         } finally {
             long endTime = System.nanoTime();
